@@ -41,7 +41,7 @@ function display(data){
     let today  = new Date(data.date);
     let date = today.toLocaleDateString("en-US", options)
     apodDate.innerHTML = `Astronomy Picture of the Day - ${date}`
-    apodImage.setAttribute('src' ,data.hdurl)
+    data.media_type == 'image' ? apodImage.setAttribute('src' ,data.hdurl) : 'assets/images/placeholder.webp'
     imgBtn.addEventListener('click', function() {
         window.open(`${data.url}`, "_blank");
     });
