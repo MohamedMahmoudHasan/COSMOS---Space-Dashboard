@@ -1,4 +1,8 @@
 
+const navLinks = document.querySelectorAll('.nav-link')
+const appSection = document.querySelectorAll('.app-section')
+console.log(appSection)
+
 const loadDateInput = document.querySelector('#apod-date-input')
 const loadDateSpan = document.querySelector('#apod-date-input').nextElementSibling
 const loadDateBtn = document.querySelector('#load-date-btn')
@@ -14,10 +18,36 @@ const apodCopyright = document.querySelector('#apod-copyright')
 const apodDateInfo = document.querySelector('#apod-date-info')
 const apodMediaType = document.querySelector('#apod-media-type')
 
+
+for (let i = 0; i < navLinks.length; i++) {
+    navLinks[i].addEventListener('click',()=>{
+        clearActiveNavLink()
+        navLinks[i].classList.remove('text-slate-300', 'hover:bg-slate-800')
+        navLinks[i].classList.add('bg-blue-500/10','text-blue-400')
+        for (let j = 0; j < appSection.length; j++) {
+            if(appSection[j].getAttribute('data-section') == navLinks[i].getAttribute('data-section')){
+                appSection[j].classList.remove('hidden')
+            }else{
+                appSection[j].classList.add('hidden')
+            }
+        }
+    })
+    
+}
+
+function clearActiveNavLink(){
+    for (let i = 0; i < navLinks.length; i++) {
+        navLinks[i].classList.remove('bg-blue-500/10','text-blue-400')
+        navLinks[i].classList.add('text-slate-300', 'hover:bg-slate-800')
+    }
+}
+
+
 const isoDate = new Date().toISOString().slice(0, 10);
 loadDateInput.setAttribute('max' , isoDate)
 loadDateInput.value = isoDate
 apiData()
+
 
 async function apiData(dateValue = " ") {
     setDate()
