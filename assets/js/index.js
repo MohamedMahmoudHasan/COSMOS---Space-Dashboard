@@ -1,48 +1,89 @@
 
-// copyright
-// : 
-// "Roi Levi"
-// date
-// : 
-// "2026-01-01"
-// explanation
-// : 
-// "Cycle 25 solar maximum made 2025 a great year for aurora borealis (or aurora australis) on planet Earth. And the high level of solar activity should extend into 2026. So, while you're celebrating the arrival of the new year, check out this spectacular auroral display that erupted in starry night skies over Kirkjufell, Iceland. The awesome auroral corona, energetic curtains of light streaming from directly overhead, was witnessed during a strong geomagnetic storm triggered by intense solar activity near the March 2025 equinox. This northland and skyscape captures the evocative display in a 21 frame panoramic mosaic."
-// hdurl
-// : 
-// "https://apod.nasa.gov/apod/image/2601/AuroraFireworksstormRoiLevi.jpg"
-// media_type
-// : 
-// "image"
-// service_version
-// : 
-// "v1"
-// title
-// : 
-// "Auroral Corona"
-// url
-// : 
-// "https://apod.nasa.gov/apod/image/2601/AuroraFireworksstormRoiLevi1024.jpg"
-
+const loadDateInput = document.querySelector('#apod-date-input')
+const loadDateSpan = document.querySelector('#apod-date-input').nextElementSibling
+const loadDateBtn = document.querySelector('#load-date-btn')
+const todayDateBtn = document.querySelector('#today-apod-btn')
 const apodDate = document.querySelector('#apod-date')
 const apodImage = document.querySelector('#apod-image')
+const apodLoading = document.querySelector('#apod-loading')
+const imgBtn = document.querySelector('#apod-image-container button')
+const apodTitle = document.querySelector('#apod-title')
+const apodDateDetail = document.querySelector('#apod-date-detail')
+const apodExplanation = document.querySelector('#apod-explanation')
+const apodCopyright = document.querySelector('#apod-copyright')
+const apodDateInfo = document.querySelector('#apod-date-info')
+const apodMediaType = document.querySelector('#apod-media-type')
 
+const isoDate = new Date().toISOString().slice(0, 10);
+loadDateInput.setAttribute('max' , isoDate)
+loadDateInput.value = isoDate
 apiData()
 
-async function apiData() {
-    let response = await fetch('https://api.nasa.gov/planetary/apod?api_key=48wB2ch9aFdLkxY1xUovYOLWzUSp5CJSKECuJI05')
-    // let response = await fetch('https://api.nasa.gov/planetary/apod?api_key=48wB2ch9aFdLkxY1xUovYOLWzUSp5CJSKECuJI05&date=2025-12-01')
+async function apiData(dateValue = " ") {
+    setDate()
+    loadingData()
+    let response = {}
+    if(dateValue == " "){
+        response = await fetch('https://api.nasa.gov/planetary/apod?api_key=48wB2ch9aFdLkxY1xUovYOLWzUSp5CJSKECuJI05')
+    }else{
+        response = await fetch(`https://api.nasa.gov/planetary/apod?api_key=48wB2ch9aFdLkxY1xUovYOLWzUSp5CJSKECuJI05&date=${dateValue}`)
+    }
     if(response.ok){
         let data = await response.json()
-        console.log(data)
         display(data)
+        apodImage.classList.remove('hidden')
+        apodLoading.classList.add('hidden')
     }
 }
 
 function display(data){
     let options = {year: 'numeric', month: 'long', day: 'numeric' };
     let today  = new Date(data.date);
-    apodDate.innerHTML = `Astronomy Picture of the Day - ${today.toLocaleDateString("en-US", options)}`
+    let date = today.toLocaleDateString("en-US", options)
+    apodDate.innerHTML = `Astronomy Picture of the Day - ${date}`
     apodImage.setAttribute('src' ,data.hdurl)
-    
+    imgBtn.addEventListener('click', function() {
+        window.open(`${data.url}`, "_blank");
+    });
+    apodTitle.innerHTML = data.title
+    apodDateDetail.innerHTML = `<i class="far fa-calendar mr-2"></i>${date}`
+    apodExplanation.innerHTML = data.explanation
+    apodCopyright.innerHTML = '&copy; Copyright: '+data.copyright
+    apodDateInfo.innerHTML = date
+    apodMediaType.innerHTML = data.media_type
+}
+
+
+loadDateBtn.addEventListener('click',()=>{
+    apiData(loadDateInput.value)
+    setDate(loadDateInput.value)
+})
+
+todayDateBtn.addEventListener('click',()=>{
+    if(loadDateInput.value != isoDate){
+        setDate()
+        apiData()
+        loadDateInput.value = isoDate
+    }
+})
+
+loadDateInput.addEventListener('input',()=>{
+    setDate(loadDateInput.value)
+})
+
+function setDate(date = isoDate){
+    let options = {year: 'numeric', month: 'short', day: 'numeric' };
+    let today  = new Date(date);
+    loadDateSpan.innerHTML = today.toLocaleDateString("en-US", options)
+}
+function loadingData(){
+    apodImage.classList.add('hidden')
+    apodLoading.classList.remove('hidden')
+    apodDate.innerHTML = `Astronomy Picture of the Day - Loading ...`
+    apodTitle.innerHTML = 'Loading ...'
+    apodDateDetail.innerHTML = `<i class="far fa-calendar mr-2"></i>Loading ...`
+    apodExplanation.innerHTML = 'Loading ...'
+    apodCopyright.innerHTML = '&copy; Copyright: Loading ...'
+    apodDateInfo.innerHTML = 'Loading ...'
+    apodMediaType.innerHTML = 'Loading ...'
 }
