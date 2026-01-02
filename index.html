@@ -156,7 +156,7 @@
       <section
         id="today-in-space"
         data-section="today-in-space"
-        class="app-section min-h-screen py-4 lg:py-8 px-4 lg:px-6 bg-slate-900/50"
+        class="app-section hidden min-h-screen py-4 lg:py-8 px-4 lg:px-6 bg-slate-900/50"
       >
         <div class="max-w-7xl mx-auto">
           <div
@@ -295,7 +295,7 @@
       <section
         id="launches"
         data-section="launches"
-        class="app-section hidden py-4 lg:py-8 px-4 lg:px-6 bg-slate-900/50"
+        class="app-section  py-4 lg:py-8 px-4 lg:px-6 bg-slate-900/50"
       >
         <div class="max-w-7xl mx-auto">
           <div class="mb-6 md:mb-8">
@@ -314,7 +314,7 @@
               <div
                 class="absolute inset-0 bg-linear-to-r from-blue-500/10 via-purple-500/10 to-pink-500/10 opacity-0 group-hover:opacity-100 transition-opacity"
               ></div>
-              <div class="relative grid grid-cols-1 lg:grid-cols-2 gap-6 p-8">
+              <div id="featured-launch-data" class="relative grid grid-cols-1 lg:grid-cols-2 gap-6 p-8">
                 <div class="flex flex-col justify-between">
                   <div>
                     <div class="flex items-center gap-3 mb-4">
@@ -424,11 +424,12 @@
                     class="relative h-full min-h-[400px] rounded-2xl overflow-hidden bg-slate-900/50"
                   >
                     <!-- Placeholder image/icon since we can't load external images reliably without correct URLs -->
-                    <div
+                     <img src="https://thespacedevs-dev.nyc3.digitaloceanspaces.com/media/images/falcon2520925_image_20221009234147.png" alt="Falcon 9 Block 5 | Starlink Group 6-88" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='/images/launch-placeholder.png';">
+                    <!-- <div
                       class="flex items-center justify-center h-full min-h-[400px] bg-slate-800"
                     >
                       <i class="fas fa-rocket text-9xl text-slate-700/50"></i>
-                    </div>
+                    </div> -->
                     <div
                       class="absolute inset-0 bg-linear-to-t from-slate-900 via-transparent to-transparent"
                     ></div>
