@@ -25,6 +25,12 @@ const apodDateInfo = document.querySelector('#apod-date-info')
 const apodMediaType = document.querySelector('#apod-media-type')
 
 
+const planetsCard = document.querySelectorAll('.planet-card')
+const planetMain = document.querySelector('#planet-main')
+let currentPlanetIndex = 0
+
+
+
 document.addEventListener('click',(e)=>{
     if(sidebar.contains(e.target)){
         sidebar.classList.remove('sidebar-open')
@@ -64,6 +70,7 @@ loadDateInput.setAttribute('max' , isoDate)
 loadDateInput.value = isoDate
 apiData()
 displayLaunches()
+displayPlanet()
 
 
 async function apiData(dateValue = " ") {
@@ -365,4 +372,210 @@ function setFeatTime(date){
     let options = {hour: '2-digit', minute: '2-digit', timeZone: 'UTC' , timeZoneName: 'short' };
     let modifiedTime  = new Date(date);
     return modifiedTime.toLocaleString("en-US", options)
+}
+
+for (let i = 0; i < planetsCard.length; i++) {
+    planetsCard[i].addEventListener('click' , ()=>{
+        if(currentPlanetIndex != i){
+            currentPlanetIndex = i;
+            displayPlanet()
+        }
+    })  
+}
+
+async function displayPlanet(){
+    let response = await fetch('https://solar-system-opendata-proxy.vercel.app/api/planets')
+    if(response.ok){
+        let data = await response.json();
+        displayCurrentPlanet(data.bodies[currentPlanetIndex])
+    }
+}
+function displayCurrentPlanet(data){
+    planetMain.innerHTML=`
+        <div
+            class="xl:col-span-2 bg-slate-800/50 border border-slate-700 rounded-xl md:rounded-2xl p-4 md:p-6 lg:p-8">
+            <div class="flex flex-col xl:flex-row xl:items-start space-y-4 xl:space-y-0">
+              <div class="relative h-48 w-48 md:h-64 md:w-64 shrink-0 mx-auto xl:mr-6">
+                <img id="planet-detail-image" class="w-full h-full object-contain" src="${data.image}"
+                  alt="${data.description}" />
+              </div>
+              <div class="flex-1">
+                <div class="flex items-center justify-between mb-3 md:mb-4">
+                  <h3 id="planet-detail-name" class="text-2xl md:text-3xl font-space font-bold">
+                    ${data.englishName}
+                  </h3>
+                  <button class="w-10 h-10 bg-slate-700 rounded-lg hover:bg-slate-600 transition-colors">
+                    <i class="far fa-heart"></i>
+                  </button>
+                </div>
+                <p id="planet-detail-description"
+                  class="text-slate-300 mb-4 md:mb-6 leading-relaxed text-sm md:text-base">
+                  ${data.description}
+                </p>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-2 md:gap-4 mt-4">
+              <div class="bg-slate-900/50 rounded-lg p-3 md:p-4">
+                <p class="text-xs text-slate-400 mb-1 flex items-center gap-1">
+                  <i class="fas fa-ruler text-xs"></i>
+                  <span class="text-xs">Semimajor Axis</span>
+                </p>
+                <p id="planet-distance" class="text-sm md:text-lg font-semibold">
+                  ${((data.semimajorAxis)/1000000).toFixed(1)}M km
+                </p>
+              </div>
+              <div class="bg-slate-900/50 rounded-lg p-4">
+                <p class="text-xs text-slate-400 mb-1 flex items-center gap-1">
+                  <i class="fas fa-circle"></i>
+                  Mean Radius
+                </p>
+                <p id="planet-radius" class="text-lg font-semibold">
+                  ${Math.ceil(data.meanRadius)} km
+                </p>
+              </div>
+              <div class="bg-slate-900/50 rounded-lg p-4">
+                <p class="text-xs text-slate-400 mb-1 flex items-center gap-1">
+                  <i class="fas fa-weight"></i>
+                  Mass
+                </p>
+                <p id="planet-mass" class="text-lg font-semibold">
+                  ${data.mass.massValue} x 10^${data.mass.massExponent} kg
+                </p>
+              </div>
+              <div class="bg-slate-900/50 rounded-lg p-4">
+                <p class="text-xs text-slate-400 mb-1 flex items-center gap-1">
+                  <i class="fas fa-compress"></i>
+                  Density
+                </p>
+                <p id="planet-density" class="text-lg font-semibold">
+                  ${data.density.toFixed(2)} g/cm³
+                </p>
+              </div>
+              <div class="bg-slate-900/50 rounded-lg p-4">
+                <p class="text-xs text-slate-400 mb-1 flex items-center gap-1">
+                  <i class="fas fa-sync-alt"></i>
+                  Orbital Period
+                </p>
+                <p id="planet-orbital-period" class="text-lg font-semibold">
+                  ${(data.sideralOrbit).toFixed(2)} days
+                </p>
+              </div>
+              <div class="bg-slate-900/50 rounded-lg p-4">
+                <p class="text-xs text-slate-400 mb-1 flex items-center gap-1">
+                  <i class="fas fa-redo"></i>
+                  Rotation Period
+                </p>
+                <p id="planet-rotation" class="text-lg font-semibold">
+                  ${data.sideralRotation.toFixed(2)} hours
+                </p>
+              </div>
+              <div class="bg-slate-900/50 rounded-lg p-4">
+                <p class="text-xs text-slate-400 mb-1 flex items-center gap-1">
+                  <i class="fas fa-moon"></i>
+                  Moons
+                </p>
+                <p id="planet-moons" class="text-lg font-semibold">${data.moons != null ?data.moons.length:'0'}</p>
+              </div>
+              <div class="bg-slate-900/50 rounded-lg p-4">
+                <p class="text-xs text-slate-400 mb-1 flex items-center gap-1">
+                  <i class="fas fa-arrows-alt-v"></i>
+                  Gravity
+                </p>
+                <p id="planet-gravity" class="text-lg font-semibold">
+                  ${data.gravity.toFixed(2)} m/s²
+                </p>
+              </div>
+            </div>
+          </div>
+          <div class="space-y-6">
+            <div class="bg-slate-800/50 border border-slate-700 rounded-2xl p-6">
+              <h4 class="font-semibold mb-4 flex items-center">
+                <i class="fas fa-user-astronaut text-purple-400 mr-2"></i>
+                Discovery Info
+              </h4>
+              <div class="space-y-3 text-sm">
+                <div class="flex justify-between items-center py-2 border-b border-slate-700">
+                  <span class="text-slate-400">Discovered By</span>
+                  <span id="planet-discoverer" class="font-semibold text-right">${data.discoveredBy != '' ?data.discoveredBy : 'Known since antiquity'}</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-slate-700">
+                  <span class="text-slate-400">Discovery Date</span>
+                  <span id="planet-discovery-date" class="font-semibold">${data.discoveryDate != '' ?data.discoveryDate : 'Ancient times'}</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-slate-700">
+                  <span class="text-slate-400">Body Type</span>
+                  <span id="planet-body-type" class="font-semibold">Planet</span>
+                </div>
+                <div class="flex justify-between items-center py-2">
+                  <span class="text-slate-400">Volume</span>
+                  <span id="planet-volume" class="font-semibold">${data.vol.volValue} x 10^${data.vol.volExponent} km³</span>
+                </div>
+              </div>
+            </div>
+            <div class="bg-slate-800/50 border border-slate-700 rounded-2xl p-6">
+              <h4 class="font-semibold mb-4 flex items-center">
+                <i class="fas fa-lightbulb text-yellow-400 mr-2"></i>
+                Quick Facts
+              </h4>
+              <ul id="planet-facts" class="space-y-3 text-sm">
+                <li class="flex items-start">
+                  <i class="fas fa-check text-green-400 mt-1 mr-2"></i>
+                  <span class="text-slate-300">Mass: ${data.mass.massValue} x 10^${data.mass.massExponent} kg</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fas fa-check text-green-400 mt-1 mr-2"></i>
+                  <span class="text-slate-300">Surface gravity: ${data.gravity.toFixed(2)} m/s²</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fas fa-check text-green-400 mt-1 mr-2"></i>
+                  <span class="text-slate-300">Density: ${data.density.toFixed(2)} g/cm³</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fas fa-check text-green-400 mt-1 mr-2"></i>
+                  <span class="text-slate-300">Axial tilt: ${data.axialTilt.toFixed(2)}°</span>
+                </li>
+              </ul>
+            </div>
+            <div class="bg-slate-800/50 border border-slate-700 rounded-2xl p-6">
+              <h4 class="font-semibold mb-4 flex items-center">
+                <i class="fas fa-satellite text-blue-400 mr-2"></i>
+                Orbital Characteristics
+              </h4>
+              <div class="space-y-3 text-sm">
+                <div class="flex justify-between items-center py-2 border-b border-slate-700">
+                  <span class="text-slate-400">Perihelion</span>
+                  <span id="planet-perihelion" class="font-semibold">${((data.perihelion)/1000000).toFixed(1)}M km</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-slate-700">
+                  <span class="text-slate-400">Aphelion</span>
+                  <span id="planet-aphelion" class="font-semibold">${((data.aphelion)/1000000).toFixed(1)}M km</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-slate-700">
+                  <span class="text-slate-400">Eccentricity</span>
+                  <span id="planet-eccentricity" class="font-semibold">${data.eccentricity.toFixed(5)}</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-slate-700">
+                  <span class="text-slate-400">Inclination</span>
+                  <span id="planet-inclination" class="font-semibold">${data.inclination.toFixed(2)}°</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-slate-700">
+                  <span class="text-slate-400">Axial Tilt</span>
+                  <span id="planet-axial-tilt" class="font-semibold">${data.axialTilt.toFixed(2)}°</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-slate-700">
+                  <span class="text-slate-400">Avg Temperature</span>
+                  <span id="planet-temp" class="font-semibold">${data.avgTemp}°C</span>
+                </div>
+                <div class="flex justify-between items-center py-2">
+                  <span class="text-slate-400">Escape Velocity</span>
+                  <span id="planet-escape" class="font-semibold">${((data.escape)/1000).toFixed(2)} km/s</span>
+                </div>
+              </div>
+            </div>
+            <button class="w-full py-3 bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors font-semibold">
+              <i class="fas fa-book mr-2"></i>Learn More
+            </button>
+          </div>
+    
+    `
 }
